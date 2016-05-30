@@ -3,7 +3,7 @@
 Solver::Solver(int x, int y)
 	: _x(x), _y(y), _totSize(x * y)
 {
-	this->_solution = new char[9]();
+	this->_solution = new char[this->_totSize]();
 	this->_genSol();
 }
 
@@ -126,4 +126,143 @@ int		Solver::manhattan(char *state)
 		res += std::abs(x - xi) + std::abs(y - yi);
 	}
 	return (res);
+}
+
+int								Solver::_getBlankPos(t_state *current)
+{
+	for (int i = 0 ; i < N*N ; i++)
+	{
+		if (current->board[i] == 0)
+			return (i);
+	}
+	return (-1);
+}
+
+bool							Solver::_board_cmp(t_state *s1, t_state * s2)
+{
+	for (int i = 0 ; i < N*N ; i++)
+	{
+		if (s1->board[i] != s2->board[i])
+			return (true);
+	}
+	return false;
+}
+
+t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last)
+{
+	t_state						*s;
+
+	s = new t_state;
+	std::memcpy(s->board, state->board, N*N * sizeof(char));
+
+	s->board[pos] = state->board[npos];
+	s->board[npos] = state->board[pos];
+
+	if (!this->_board_cmp(s, last)) {
+		std::cout << "already here" << std::endl;
+		return NULL;
+	}
+
+	s->g = state->g + 1;
+	s->h = state->h;
+	s->predecessor = state;
+
+	return s;
+}
+
+std::vector<t_state *>			Solver::_getNeighbours(t_state *current, t_state *last)
+{
+	 int						p, np;
+	 std::vector<t_state *>		neighbours;
+
+	t_state*	s; 
+
+	 p = this->_getBlankPos(current);
+
+	if (p % N != 0)
+	{
+		np = p - 1;
+		s = this->_swapTile(p, np, current, last);
+		if (s)
+			neighbours.push_back(s);
+	}
+	if ((p + 1) % N != 0)
+	{
+		np = p + 1;
+		s = this->_swapTile(p, np, current, last);
+		if (s)
+			neighbours.push_back(s);
+	}
+	if ((p - N) >= 0)
+	{
+		np = p - N;
+		s = this->_swapTile(p, np, current, last);
+		if (s)
+			neighbours.push_back(s);
+	}
+	if ((p + N) < N*N)
+	{
+		np = p + N;
+		s = this->_swapTile(p, np, current, last);
+		if (s)
+			neighbours.push_back(s);
+	}
+	return neighbours;
+}
+
+void					Solver::solver()
+{
+	bool						succes = false;
+
+	std::vector<t_state *>		neighbours();
+	t_state *					last;
+	t_state	*					current;
+	
+	openSet.insert(this->_initialState);
+	last = this->_initialState;
+
+	while (!this->_openSet.empty() && !success)
+	{
+		auto it = this->_openSet.begin();
+		current = *it;
+		this->_openSet.erase(it);
+
+		if (current == solution)
+			success == true;
+		else
+		{
+			this->_closeSet.push_back(current);
+
+			neighbours = getNeighbours(current, last);
+			for (auto n : neighbours)
+			{
+				if (!this->_openSet.find(n) || !this->_closeSet.find(n))
+				{
+					this->_openSet.insert(n);
+				}
+				else
+				{
+		//	WIP			
+					// if n is in list we call the list elem old_n
+					//  n == old_n <=> n->board == old_n->board
+					if ( n->g > old_n->g )
+						continue ;
+					if ((old_n = getOccurenceList(this->_openSet, n) == NULL); // get ptr on list node
+						old_n = n;
+					//if (n is in this->_openSet)
+					//	this->_openSet[x] == n; // replace old ptr with new one
+					else if (n is in this->_closeSet)
+					{
+						this->_closeSet.extract(old_n);
+						this->_openSet.insert(n);
+					}
+
+				}
+		// WIP
+			}
+
+			delete neighbours;
+		}
+		delete current;
+	}
 }
