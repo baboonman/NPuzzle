@@ -9,7 +9,7 @@ Solver::Solver(int x, int y)
 
 Solver::~Solver()
 {
-
+	delete this->_solution;
 }
 
 void	Solver::_genSol(void)
@@ -69,7 +69,6 @@ void	Solver::_genSol(void)
 				border[WEST] = false;
 				border[NORTH] = true;
 				curPos = minY * this->_x + minX;
-				std::cout << " cur pos: " << curPos;
 			}
 		}
 		if (maxX == minX && maxY == minY)
