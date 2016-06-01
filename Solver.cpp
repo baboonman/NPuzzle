@@ -22,6 +22,10 @@ Solver::Solver(std::string filename)
 		std::cerr << "Unable to parse file" << std::endl;
 		throw new std::exception;
 	}
+	if (this->_whichHeuristics == HAMMING)
+	{
+		this->_initialState->h = this->hamming(this->_initialState->board);
+	}
 	this->_size = size;
 	this->_totSize = size * size;
 	this->_init();

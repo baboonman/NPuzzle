@@ -11,6 +11,9 @@
 # define SOUTH 2
 # define EAST 3
 
+# define HAMMING 0
+# define MANHATTAN 1
+
 typedef struct			s_state
 {
 	char				*board;
@@ -52,6 +55,7 @@ class	Solver
 		int		_size;
 		int		_totSize;
 		std::string	_srcFile;
+		int		_whichHeuristics = HAMMING;
 		
 		std::set<t_state*, t_state_cmp>		_openSet;
 		std::vector<t_state *>				_closeSet;
