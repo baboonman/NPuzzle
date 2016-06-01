@@ -15,10 +15,11 @@ char		*parse(std::string filename, size_t *size)
 {
 	std::ifstream	file;
 	std::string		line;
-	char			*res;
+	char			*res = nullptr;
 	bool			hasSize = false;
 	int				curPos = 0;
 
+	*size = 0;
 	file.open(filename);
 	while (std::getline(file, line))
 	{
@@ -27,7 +28,6 @@ char		*parse(std::string filename, size_t *size)
 			line.erase(pos);
 		if (line.length() <= 0)
 			continue ;
-		std::cout << line << std::endl;
 		std::istringstream iss(line);
 		if (!hasSize) {
 			if (!(iss >> *size)) { return nullptr; }
@@ -46,6 +46,7 @@ char		*parse(std::string filename, size_t *size)
 			}
 		}
 	}
+	std::cout << "Input: " << std::endl;
 	for (size_t y = 0; y < *size; ++y)
 	{
 		for (size_t x = 0; x < *size; ++x)
@@ -54,5 +55,6 @@ char		*parse(std::string filename, size_t *size)
 		}
 		std::cout << std::endl;
 	}
+	std::cout << "-------" << std::endl;
 	return res;
 }

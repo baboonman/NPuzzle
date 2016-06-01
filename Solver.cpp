@@ -1,22 +1,43 @@
 #include "Solver.hpp"
 
-Solver::Solver(int x, int y)
-	: _x(x), _y(y), _totSize(x * y)
+Solver::Solver(int size)
+	: _size(size), _totSize(size * size)
+{
+	this->_init();
+}
+
+void	Solver::_init(void)
 {
 	this->_solution = new char[this->_totSize]();
 	this->_genSol();
 }
 
+Solver::Solver(std::string filename)
+{
+	size_t	size = 0;
+
+	this->_initialState = new t_state();
+	if (!(this->_initialState->board = parse(filename, &size)))
+	{
+		std::cerr << "Unable to parse file" << std::endl;
+		throw new std::exception;
+	}
+	this->_size = size;
+	this->_totSize = size * size;
+	this->_init();
+}
+
 Solver::~Solver()
 {
 	delete this->_solution;
+	delete this->_initialState;
 }
 
 void	Solver::_genSol(void)
 {
 	bool	notFinish = true;
-	int		maxX = this->_x - 1;
-	int		maxY = this->_y - 1;
+	int		maxX = this->_size - 1;
+	int		maxY = this->_size - 1;
 	int		minX = 0;
 	int		minY = 0;
 	int		curId = 1;
@@ -28,47 +49,47 @@ void	Solver::_genSol(void)
 		if (border[NORTH])
 		{
 			this->_solution[curPos++] = curId++;
-			if (curPos > maxX + minY * this->_x)
+			if (curPos > maxX + minY * this->_size)
 			{
 				minY++;
 				border[NORTH] = false;
 				border[EAST] = true;
-				curPos = minY * this->_x + maxX;
+				curPos = minY * this->_size + maxX;
 			}
 		}
 		else if (border[EAST])
 		{
 			this->_solution[curPos] = curId++;
-			curPos += this->_x;
-			if (curPos / this->_x > maxY)
+			curPos += this->_size;
+			if (curPos / this->_size > maxY)
 			{
 				maxX--;
 				border[EAST] = false;
 				border[SOUTH] = true;
-				curPos = maxY * this->_x + maxX;
+				curPos = maxY * this->_size + maxX;
 			}
 		}
 		else if (border[SOUTH])
 		{
 			this->_solution[curPos--] = curId++;
-			if (curPos < maxY * this->_x + minX)
+			if (curPos < maxY * this->_size + minX)
 			{
 				maxY--;
 				border[SOUTH] = false;
 				border[WEST] = true;
-				curPos = maxY * this->_x + minX;
+				curPos = maxY * this->_size + minX;
 			}
 		}
 		else if (border[WEST])
 		{
 			this->_solution[curPos] = curId++;
-			curPos -= this->_x;
-			if (curPos < minY * this->_x + minX)
+			curPos -= this->_size;
+			if (curPos < minY * this->_size + minX)
 			{
 				minX++;
 				border[WEST] = false;
 				border[NORTH] = true;
-				curPos = minY * this->_x + minX;
+				curPos = minY * this->_size + minX;
 			}
 		}
 		if (maxX == minX && maxY == minY)
@@ -76,11 +97,11 @@ void	Solver::_genSol(void)
 			notFinish = false;
 		}
 	}
-	for (int y = 0; y < this->_y; ++y)
+	for (int y = 0; y < this->_size; ++y)
 	{
-		for (int x = 0; x < this->_x; ++x)
+		for (int x = 0; x < this->_size; ++x)
 		{
-			std::cout << static_cast<int>(this->_solution[x + y * this->_x]) << " ";
+			std::cout << static_cast<int>(this->_solution[x + y * this->_size]) << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -119,10 +140,10 @@ int		Solver::manhattan(char *state)
 	for (int i = 0; i < this->_totSize; ++i)
 	{
 		pos = this->_findTile(state[i]);
-		x = pos % this->_x;
-		y = pos / this->_y;
-		xi = i % this->_x;
-		yi = i / this->_y;
+		x = pos % this->_size;
+		y = pos / this->_size;
+		xi = i % this->_size;
+		yi = i / this->_size;
 		res += std::abs(x - xi) + std::abs(y - yi);
 	}
 	return (res);
@@ -130,7 +151,7 @@ int		Solver::manhattan(char *state)
 
 int								Solver::_getBlankPos(t_state *current)
 {
-	for (int i = 0 ; i < N*N ; i++)
+	for (int i = 0 ; i < this->_totSize ; i++)
 	{
 		if (current->board[i] == 0)
 			return (i);
@@ -140,7 +161,7 @@ int								Solver::_getBlankPos(t_state *current)
 
 bool							Solver::_board_cmp(t_state *s1, t_state * s2)
 {
-	for (int i = 0 ; i < N*N ; i++)
+	for (int i = 0 ; i < this->_totSize ; i++)
 	{
 		if (s1->board[i] != s2->board[i])
 			return (true);
@@ -153,7 +174,7 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	t_state						*s;
 
 	s = new t_state;
-	std::memcpy(s->board, state->board, N*N * sizeof(char));
+	std::memcpy(s->board, state->board, this->_totSize * sizeof(char));
 
 	s->board[pos] = state->board[npos];
 	s->board[npos] = state->board[pos];
@@ -179,30 +200,30 @@ std::vector<t_state *>			Solver::_getNeighbours(t_state *current, t_state *last)
 
 	 p = this->_getBlankPos(current);
 
-	if (p % N != 0)
+	if (p % this->_size != 0)
 	{
 		np = p - 1;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
 			neighbours.push_back(s);
 	}
-	if ((p + 1) % N != 0)
+	if ((p + 1) % this->_size != 0)
 	{
 		np = p + 1;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
 			neighbours.push_back(s);
 	}
-	if ((p - N) >= 0)
+	if ((p - this->_size) >= 0)
 	{
-		np = p - N;
+		np = p - this->_size;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
 			neighbours.push_back(s);
 	}
-	if ((p + N) < N*N)
+	if ((p + this->_size) < this->_totSize)
 	{
-		np = p + N;
+		np = p + this->_size;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
 			neighbours.push_back(s);
@@ -212,13 +233,14 @@ std::vector<t_state *>			Solver::_getNeighbours(t_state *current, t_state *last)
 
 void					Solver::solver()
 {
-	bool						succes = false;
+	/*
+	bool						success = false;
 
-	std::vector<t_state *>		neighbours();
+	std::vector<t_state *>		neighbours;
 	t_state *					last;
 	t_state	*					current;
 	
-	openSet.insert(this->_initialState);
+	this->_openSet.insert(this->_initialState);
 	last = this->_initialState;
 
 	while (!this->_openSet.empty() && !success)
@@ -233,7 +255,7 @@ void					Solver::solver()
 		{
 			this->_closeSet.push_back(current);
 
-			neighbours = getNeighbours(current, last);
+			neighbours = _getNeighbours(current, last);
 			for (auto n : neighbours)
 			{
 				if (!this->_openSet.find(n) || !this->_closeSet.find(n))
@@ -265,4 +287,5 @@ void					Solver::solver()
 		}
 		delete current;
 	}
+	*/
 }

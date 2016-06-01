@@ -5,6 +5,7 @@
 # include <iostream>
 # include <vector>
 # include <set>
+# include "parser.hpp"
 # define NORTH 0
 # define WEST 1
 # define SOUTH 2
@@ -29,7 +30,8 @@ typedef struct			s_state_cmp
 class	Solver
 {
 	public:
-		Solver(int x, int y);
+		Solver(int size);
+		Solver(std::string filename);
 		virtual ~Solver();
 		int		hamming(char *state);
 		int		manhattan(char *state);
@@ -40,15 +42,16 @@ class	Solver
 		int		_findTile(int id);
 		void	_genSol(void);
 		int		_getBlankPos(t_state * current);
-		bool							_board_cmp(t_state *s1, t_state * s2);
-		t_state*						_swapTile(int pos, int npos, t_state *state, t_state *last);
-		std::vector<t_state *>			_getNeighbours(t_state *current, t_state *last);
+		bool						_board_cmp(t_state *s1, t_state * s2);
+		t_state*					_swapTile(int pos, int npos, t_state *state, t_state *last);
+		std::vector<t_state *>		_getNeighbours(t_state *current, t_state *last);
+		void						_init(void);
 
 		t_state	*_initialState;
 		char	*_solution;
-		int		_x;
-		int		_y;
+		int		_size;
 		int		_totSize;
+		std::string	_srcFile;
 		
 		std::set<t_state*, t_state_cmp>		_openSet;
 		std::vector<t_state *>				_closeSet;
