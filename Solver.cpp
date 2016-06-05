@@ -28,8 +28,9 @@ Solver::Solver(std::string filename)
 	this->_init();
 	if (this->_whichHeuristics == HAMMING)
 	{
-		this->_initialState->h = this->hamming(this->_initialState->board);
-//		this->_initialState->h = this->manhattan(this->_initialState->board);
+//		this->_initialState->h = this->hamming(this->_initialState->board);
+		this->_initialState->h = this->manhattan(this->_initialState->board);
+		this->_initialState->f = this->_initialState->h;
 	}
 }
 
@@ -119,7 +120,8 @@ int		Solver::hamming(uint8_t *board)
 
 	for (int i = 0; i < this->_totSize; ++i)
 	{
-		res += board[i] ^ this->_solution[i];
+		if (board[i] ^ this->_solution[i])
+			res++;
 	}
 	return (res);
 }
@@ -193,8 +195,9 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	}
 
 	s->g = state->g + 1;
-	s->h = this->hamming(s->board);
-//	s->h = this->manhattan(s->board);
+//	s->h = this->hamming(s->board);
+	s->h = this->manhattan(s->board);
+	s->f = s->g + s->h;
 	s->predecessor = state;
 
 	return s;
@@ -243,7 +246,7 @@ std::vector<t_state *>			*Solver::_getNeighbours(t_state *current, t_state *last
 
 void					Solver::_printState(t_state *s)
 {
-	std::cout << "cost: " << s->g << " heuristic: " << s->h << std::endl;
+	std::cout << "cost: " << s->g << " heuristic: " << s->h << " f: " << s->f << std::endl;
 	for (int i = 0 ; i < this->_totSize ; i++)
 	{
 		if (i != 0 && i % this->_size == 0)
@@ -297,8 +300,8 @@ void					Solver::solver()
 			{
 				auto openIt = this->_findState<std::set<t_state*, t_state_cmp>>(this->_openSet, n);
 				auto closeIt = this->_findState<std::vector<t_state*>>(this->_closeSet, n);
-				bool isInOpen = openIt != this->_openSet.end();
-				bool isInClose = closeIt != this->_closeSet.end();
+				bool isInOpen = (openIt != this->_openSet.end());
+				bool isInClose = (closeIt != this->_closeSet.end());
 
 				if (!isInOpen && !isInClose)
 				{
@@ -321,6 +324,7 @@ void					Solver::solver()
 			delete neighbours;
 		}
 		//delete current;
+		last = current;
 	}
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
