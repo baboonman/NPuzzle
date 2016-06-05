@@ -178,6 +178,7 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	t_state						*s;
 
 	s = new t_state;
+	s->board = new char[this->_totSize];
 	std::memcpy(s->board, state->board, this->_totSize * sizeof(char));
 
 	s->board[pos] = state->board[npos];
@@ -195,11 +196,12 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	return s;
 }
 
-std::vector<t_state *>			Solver::_getNeighbours(t_state *current, t_state *last)
+std::vector<t_state *>			*Solver::_getNeighbours(t_state *current, t_state *last)
 {
 	 int						p, np;
-	 std::vector<t_state *>		neighbours;
+	 std::vector<t_state *>		*neighbours;
 
+	neighbours = new std::vector<t_state *>;
 	t_state*	s; 
 
 	 p = this->_getBlankPos(current);
@@ -209,38 +211,37 @@ std::vector<t_state *>			Solver::_getNeighbours(t_state *current, t_state *last)
 		np = p - 1;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
-			neighbours.push_back(s);
+			neighbours->push_back(s);
 	}
 	if ((p + 1) % this->_size != 0)
 	{
 		np = p + 1;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
-			neighbours.push_back(s);
+			neighbours->push_back(s);
 	}
 	if ((p - this->_size) >= 0)
 	{
 		np = p - this->_size;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
-			neighbours.push_back(s);
+			neighbours->push_back(s);
 	}
 	if ((p + this->_size) < this->_totSize)
 	{
 		np = p + this->_size;
 		s = this->_swapTile(p, np, current, last);
 		if (s)
-			neighbours.push_back(s);
+			neighbours->push_back(s);
 	}
 	return neighbours;
 }
 
 void					Solver::solver()
 {
-	/*
 	bool						success = false;
 
-	std::vector<t_state *>		neighbours;
+	std::vector<t_state *>		*neighbours;
 	t_state *					last;
 	t_state	*					current;
 	
@@ -253,43 +254,45 @@ void					Solver::solver()
 		current = *it;
 		this->_openSet.erase(it);
 
-		if (current == solution)
-			success == true;
+		if (!this->hamming(current->board))
+		{
+			success = true;
+			std::cout << "Puzzle solved biatch" << std::endl;
+		}
 		else
 		{
 			this->_closeSet.push_back(current);
 
-			neighbours = _getNeighbours(current, last);
-			for (auto n : neighbours)
+			neighbours = this->_getNeighbours(current, last);
+			for (auto n : *neighbours)
 			{
-				if (!this->_openSet.find(n) || !this->_closeSet.find(n))
+				auto openIt = this->_findState<std::set<t_state*, t_state_cmp>>(this->_openSet, n);
+				auto closeIt = this->_findState<std::vector<t_state*>>(this->_closeSet, n);
+				bool isInOpen = openIt != this->_openSet.end();
+				bool isInClose = closeIt != this->_closeSet.end();
+
+				if (!isInOpen && !isInClose)
 				{
 					this->_openSet.insert(n);
 				}
 				else
 				{
-		//	WIP			
-					// if n is in list we call the list elem old_n
-					//  n == old_n <=> n->board == old_n->board
-					if ( n->g > old_n->g )
-						continue ;
-					if ((old_n = getOccurenceList(this->_openSet, n) == NULL); // get ptr on list node
-						old_n = n;
-					//if (n is in this->_openSet)
-					//	this->_openSet[x] == n; // replace old ptr with new one
-					else if (n is in this->_closeSet)
+					if (isInOpen && (*openIt)->g > n->g)
 					{
-						this->_closeSet.extract(old_n);
+						this->_openSet.erase(openIt);
 						this->_openSet.insert(n);
 					}
-
+					else if (isInClose && (*closeIt)->g > n->g)
+					{
+						this->_closeSet.erase(closeIt);
+						this->_openSet.insert(n);
+					}
 				}
-		// WIP
 			}
-
 			delete neighbours;
 		}
 		delete current;
 	}
-	*/
+	if (!success)
+		std::cout << "Puzzle not solved fucking biatch" << std::endl;
 }

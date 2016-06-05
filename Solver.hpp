@@ -47,8 +47,13 @@ class	Solver
 		int		_getBlankPos(t_state * current);
 		bool						_board_cmp(t_state *s1, t_state * s2);
 		t_state*					_swapTile(int pos, int npos, t_state *state, t_state *last);
-		std::vector<t_state *>		_getNeighbours(t_state *current, t_state *last);
+		std::vector<t_state *>		*_getNeighbours(t_state *current, t_state *last);
 		void						_init(void);
+
+		template <class I>
+		bool				_cmpBoard(t_state *s, I it);
+		template <class T>
+		auto				_findState(const T &set, t_state *s);
 
 		t_state	*_initialState;
 		char	*_solution;
@@ -61,6 +66,26 @@ class	Solver
 		std::vector<t_state *>				_closeSet;
 };
 
+template<class I>
+bool					Solver::_cmpBoard(t_state *s, I it)
+{
+	for (int i = 0 ; i < this->_totSize ; i++)
+	{
+		if (s->board[i] != (*it)->board[i])
+			return false;
+	}
+	return true;
+}
 
+template<class T>
+auto					Solver::_findState(const T &set, t_state *s)
+{
+	for (auto it = set.begin() ; it != set.end() ; it++)
+	{
+		if (this->_cmpBoard(s, it))
+			return it;
+	}
+	return set.end();
+}
 
 #endif

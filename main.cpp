@@ -11,5 +11,7 @@ int		main(int argc, char **argv)
 		return 0;
 	}
 	solver = new Solver(argv[1]);
+	solver->solver();
+	delete solver;
 	return (0);
 }

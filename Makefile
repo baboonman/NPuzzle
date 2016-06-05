@@ -1,5 +1,5 @@
 CC= clang++
-FLAGS=-Wall -Wextra -std=c++11 -g
+FLAGS=-Wall -Wextra -std=c++14 -g
 NAME=npuzzle
 
 SRC= main.cpp \
