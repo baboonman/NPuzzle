@@ -18,7 +18,7 @@ typedef struct			s_state_cmp
 {
 	bool operator() (const t_state *lhs, const t_state *rhs)
 	{
-		return lhs->h < rhs->h; 
+		return lhs->f <= rhs->f; 
 	}
 }						t_state_cmp;
 

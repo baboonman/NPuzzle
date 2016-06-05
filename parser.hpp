@@ -6,6 +6,7 @@ typedef struct			s_state
 	uint8_t				*board;
 	int					g;
 	int					h;
+	int					f;
 	struct s_state*		predecessor;
 }						t_state;
 

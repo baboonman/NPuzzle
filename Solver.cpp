@@ -28,8 +28,9 @@ Solver::Solver(std::string filename)
 	this->_init();
 	if (this->_whichHeuristics == HAMMING)
 	{
-		this->_initialState->h = this->hamming(this->_initialState->board);
-//		this->_initialState->h = this->manhattan(this->_initialState->board);
+//		this->_initialState->h = this->hamming(this->_initialState->board);
+		this->_initialState->h = this->manhattan(this->_initialState->board);
+		this->_initialState->f = this->_initialState->h;
 	}
 }
 
@@ -119,7 +120,8 @@ int		Solver::hamming(uint8_t *board)
 
 	for (int i = 0; i < this->_totSize; ++i)
 	{
-		res += board[i] ^ this->_solution[i];
+		if (board[i] ^ this->_solution[i])
+			res++;
 	}
 	return (res);
 }
@@ -193,8 +195,9 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	}
 
 	s->g = state->g + 1;
-	s->h = this->hamming(s->board);
-//	s->h = this->manhattan(s->board);
+	//s->h = this->hamming(s->board);
+	s->h = this->manhattan(s->board);
+	s->f = s->h + s->g;
 	s->predecessor = state;
 
 	return s;
@@ -273,15 +276,18 @@ void					Solver::solver()
 	std::vector<t_state *>		*neighbours;
 	t_state *					last;
 	t_state	*					current;
+	int							i = 0;
 	
 	this->_openSet.insert(this->_initialState);
 	last = this->_initialState;
 
 	while (!this->_openSet.empty() && !success)
 	{
+		i++;
 		auto it = this->_openSet.begin();
 		current = *it;
 		this->_openSet.erase(it);
+	//	std::cout << "current: " << current->f << std::endl;
 
 		if (!this->hamming(current->board))
 		{
@@ -304,15 +310,31 @@ void					Solver::solver()
 				{
 					this->_openSet.insert(n);
 				}
+				else if (isInOpen && isInClose)
+				{
+					std::cout << "FAIL" << std::endl;
+				}
 				else
 				{
-					if (isInOpen && (*openIt)->g > n->g)
+					/*
+					if (isInOpen)
 					{
+						std::cout << "n->f: " << n->f << " openit->f: " << (*openIt)->f << " n->h:" << n->h << " openit->h: " << (*openIt)->h << std::endl;
+					}
+					if (isInClose)
+					{
+						std::cout << "n->f: " << n->f << " closeit->f: " << (*closeIt)->f << " n->h:" << n->h << " closeit->h: " << (*closeIt)->h << std::endl;
+					}
+					*/
+					if (isInOpen && n->f < (*openIt)->f)
+					{
+					//	std::cout << "Change in open" << std::endl;
 						this->_openSet.erase(openIt);
 						this->_openSet.insert(n);
 					}
-					else if (isInClose && (*closeIt)->g > n->g)
+					else if (isInClose && n->f < (*closeIt)->f)
 					{
+					//	std::cout << "Change in close" << std::endl;
 						this->_closeSet.erase(closeIt);
 						this->_openSet.insert(n);
 					}
@@ -321,9 +343,11 @@ void					Solver::solver()
 			delete neighbours;
 		}
 		//delete current;
+		last = current;
 	}
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
 	else
 		this->_printPred(current);
+	std::cout << "nb loop turn: " << i << std::endl;
 }
