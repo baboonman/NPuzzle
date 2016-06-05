@@ -31,7 +31,7 @@ uint8_t		*parse(std::string filename, size_t *size)
 			hasSize = true;
 			res = new uint8_t[*size * *size];
 		} else {
-			for (int i = 0; i < 3; ++i)
+			for (size_t i = 0; i < *size; ++i)
 			{
 				if (!(iss >> tmp)) {
 					std::cout << "Unable to get full line" << std::endl;

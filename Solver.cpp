@@ -29,6 +29,7 @@ Solver::Solver(std::string filename)
 	if (this->_whichHeuristics == HAMMING)
 	{
 		this->_initialState->h = this->hamming(this->_initialState->board);
+//		this->_initialState->h = this->manhattan(this->_initialState->board);
 	}
 }
 
@@ -192,7 +193,8 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	}
 
 	s->g = state->g + 1;
-	s->h = state->h;
+	s->h = this->hamming(s->board);
+//	s->h = this->manhattan(s->board);
 	s->predecessor = state;
 
 	return s;
@@ -237,6 +239,31 @@ std::vector<t_state *>			*Solver::_getNeighbours(t_state *current, t_state *last
 			neighbours->push_back(s);
 	}
 	return neighbours;
+}
+
+void					Solver::_printState(t_state *s)
+{
+	std::cout << "cost: " << s->g << " heuristic: " << s->h << std::endl;
+	for (int i = 0 ; i < this->_totSize ; i++)
+	{
+		if (i != 0 && i % this->_size == 0)
+			std::cout << std::endl;
+		std::cout << static_cast<int>(s->board[i]) << " ";
+	}
+	std::cout << std::endl;
+}
+
+void					Solver::_printPred(t_state *finalState)
+{
+	t_state				*c;
+
+	c = finalState;
+	while (c != nullptr)
+	{
+		this->_printState(c);
+		c = c->predecessor;
+	}
+	std::cout << "Total move: " << finalState->g << std::endl;
 }
 
 void					Solver::solver()
@@ -297,4 +324,6 @@ void					Solver::solver()
 	}
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
+	else
+		this->_printPred(current);
 }

@@ -47,6 +47,9 @@ class	Solver
 		template <class T>
 		auto				_findState(const T &set, t_state *s);
 
+		void					_printState(t_state *s);
+		void					_printPred(t_state *finalState);
+
 		t_state	*_initialState;
 		uint8_t	*_solution;
 		int		_size;
