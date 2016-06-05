@@ -8,7 +8,7 @@ Solver::Solver(int size)
 
 void	Solver::_init(void)
 {
-	this->_solution = new char[this->_totSize]();
+	this->_solution = new uint8_t[this->_totSize]();
 	this->_genSol();
 }
 
@@ -22,13 +22,14 @@ Solver::Solver(std::string filename)
 		std::cerr << "Unable to parse file" << std::endl;
 		throw new std::exception;
 	}
+	this->_size = size;
+	this->_totSize = size * size;
+	std::cout << "size: " << size << " totsize: " << this->_totSize << std::endl;
+	this->_init();
 	if (this->_whichHeuristics == HAMMING)
 	{
 		this->_initialState->h = this->hamming(this->_initialState->board);
 	}
-	this->_size = size;
-	this->_totSize = size * size;
-	this->_init();
 }
 
 Solver::~Solver()
@@ -111,13 +112,13 @@ void	Solver::_genSol(void)
 	}
 }
 
-int		Solver::hamming(char *state)
+int		Solver::hamming(uint8_t *board)
 {
 	int		res = 0;
 
 	for (int i = 0; i < this->_totSize; ++i)
 	{
-		res += state[i] ^ this->_solution[i];
+		res += board[i] ^ this->_solution[i];
 	}
 	return (res);
 }
@@ -132,7 +133,7 @@ int		Solver::_findTile(int id)
 	return (-1);
 }
 
-int		Solver::manhattan(char *state)
+int		Solver::manhattan(uint8_t *board)
 {
 	int		pos;
 	int		x;
@@ -143,7 +144,7 @@ int		Solver::manhattan(char *state)
 
 	for (int i = 0; i < this->_totSize; ++i)
 	{
-		pos = this->_findTile(state[i]);
+		pos = this->_findTile(board[i]);
 		x = pos % this->_size;
 		y = pos / this->_size;
 		xi = i % this->_size;
@@ -158,7 +159,9 @@ int								Solver::_getBlankPos(t_state *current)
 	for (int i = 0 ; i < this->_totSize ; i++)
 	{
 		if (current->board[i] == 0)
+		{
 			return (i);
+		}
 	}
 	return (-1);
 }
@@ -178,14 +181,13 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	t_state						*s;
 
 	s = new t_state;
-	s->board = new char[this->_totSize];
-	std::memcpy(s->board, state->board, this->_totSize * sizeof(char));
+	s->board = new uint8_t[this->_totSize];
+	std::memcpy(s->board, state->board, this->_totSize * sizeof(uint8_t));
 
 	s->board[pos] = state->board[npos];
 	s->board[npos] = state->board[pos];
 
 	if (!this->_board_cmp(s, last)) {
-		std::cout << "already here" << std::endl;
 		return NULL;
 	}
 
@@ -291,7 +293,7 @@ void					Solver::solver()
 			}
 			delete neighbours;
 		}
-		delete current;
+		//delete current;
 	}
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;

@@ -14,14 +14,6 @@
 # define HAMMING 0
 # define MANHATTAN 1
 
-typedef struct			s_state
-{
-	char				*board;
-	int					g;
-	int					h;
-	struct s_state*		predecessor;
-}						t_state;
-
 typedef struct			s_state_cmp
 {
 	bool operator() (const t_state *lhs, const t_state *rhs)
@@ -36,8 +28,8 @@ class	Solver
 		Solver(int size);
 		Solver(std::string filename);
 		virtual ~Solver();
-		int		hamming(char *state);
-		int		manhattan(char *state);
+		int		hamming(uint8_t *state);
+		int		manhattan(uint8_t *state);
 
 		void			solver();
 
@@ -56,7 +48,7 @@ class	Solver
 		auto				_findState(const T &set, t_state *s);
 
 		t_state	*_initialState;
-		char	*_solution;
+		uint8_t	*_solution;
 		int		_size;
 		int		_totSize;
 		std::string	_srcFile;

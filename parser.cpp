@@ -2,26 +2,21 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "parser.hpp"
 
-typedef struct			s_state
-{
-	char				*board;
-	int					g;
-	int					h;
-	struct s_state*		predecessor;
-}						t_state;
 
-char		*parse(std::string filename, size_t *size)
+uint8_t		*parse(std::string filename, size_t *size)
 {
 	std::ifstream	file;
 	std::string		line;
-	char			*res = nullptr;
+	uint8_t			*res = nullptr;
 	bool			hasSize = false;
-	int				curPos = 0;
+	size_t			curPos = 0;
+	int				tmp;
 
 	*size = 0;
 	file.open(filename);
-	while (std::getline(file, line))
+	while (std::getline(file, line) && (!hasSize || curPos < *size * *size))
 	{
 		size_t pos = line.find('#');
 		if (pos != line.npos)
@@ -34,14 +29,16 @@ char		*parse(std::string filename, size_t *size)
 			if (*size < 3)
 				return (nullptr);
 			hasSize = true;
-			res = new char[*size];
+			res = new uint8_t[*size * *size];
 		} else {
 			for (int i = 0; i < 3; ++i)
 			{
-				if (!(iss >> (res + curPos))) {
+				if (!(iss >> tmp)) {
 					std::cout << "Unable to get full line" << std::endl;
+
 					return nullptr;
 				}
+				res[curPos] = tmp;
 				curPos++;
 			}
 		}
@@ -51,10 +48,10 @@ char		*parse(std::string filename, size_t *size)
 	{
 		for (size_t x = 0; x < *size; ++x)
 		{
-			std::cout << res[x + y * *size] << " ";
+			std::cout << static_cast<int>(res[x + y * *size]) << " ";
 		}
 		std::cout << std::endl;
 	}
 	std::cout << "-------" << std::endl;
-	return res;
+	return (res);
 }
