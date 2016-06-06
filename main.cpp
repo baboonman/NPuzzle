@@ -10,7 +10,11 @@ int		main(int argc, char **argv)
 		std::cerr << "./npuzzle filename" << std::endl;
 		return 0;
 	}
-	solver = new Solver(argv[1]);
+	try {
+		solver = new Solver(argv[1]);
+	} catch (std::exception *e) {
+		return (1);
+	}
 	solver->solver();
 	delete solver;
 	return (0);
