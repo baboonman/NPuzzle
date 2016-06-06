@@ -26,6 +26,11 @@ Solver::Solver(std::string filename)
 	this->_totSize = size * size;
 	std::cout << "size: " << size << " totsize: " << this->_totSize << std::endl;
 	this->_init();
+	if (!this->_isSolvable(this->_initialState, this->_solution))
+	{
+		std::cerr << "Unsolvable puzzle man" << std::endl;
+		throw new std::exception;
+	}
 	if (this->_whichHeuristics == HAMMING)
 	{
 //		this->_initialState->h = this->hamming(this->_initialState->board);
@@ -124,6 +129,16 @@ int		Solver::hamming(uint8_t *board)
 			res++;
 	}
 	return (res);
+}
+
+int		Solver::_findTile(uint8_t *board, int tile)
+{
+	for (int i = 0 ; i < this->_totSize ; i++)
+	{
+		if (board[i] == tile)
+			return (i);
+	}
+	return (-1);
 }
 
 int		Solver::_findTile(int id)
@@ -363,4 +378,33 @@ void					Solver::solver()
 	else
 		this->_printPred(current);
 	std::cout << "nb loop turn: " << i << std::endl;
+}
+
+int			Solver::_inversions(uint8_t *board)
+{
+	int		inv = 0;
+
+	for (int i = 0 ; i < this->_totSize - 1 ; i++)
+	{
+		for (int j = i + 1 ; j < this->_totSize ; j++)
+		{
+			if (board[i] && board[j] && board[i] > board[j])
+				inv++;
+		}
+	}
+	return inv;
+}
+
+bool		Solver::_isSolvable(t_state *initialState, uint8_t *goalState)
+{
+	int		startInv = this->_inversions(initialState->board);
+	int		goalInv = this->_inversions(goalState);
+
+	if (this->_size % 2 == 0)
+	{
+		startInv += this->_getBlankPos(initialState) / this->_size;
+		goalInv +=  this->_findTile(goalState, 0) / this->_size;
+	}
+
+	return (startInv % 2 == goalInv % 2);
 }

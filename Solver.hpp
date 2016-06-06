@@ -31,36 +31,41 @@ class	Solver
 		Solver(int size);
 		Solver(std::string filename);
 		virtual ~Solver();
-		int		hamming(uint8_t *state);
-		int		manhattan(uint8_t *state);
+		int						hamming(uint8_t *state);
+		int						manhattan(uint8_t *state);
 
-		void			solver();
+		void					solver();
 
 	private:
-		int		_findTile(int id);
-		void	_genSol(void);
-		int		_getBlankPos(t_state * current);
-		bool						_board_cmp(t_state *s1, t_state * s2);
-		t_state*					_swapTile(int pos, int npos, t_state *state, t_state *last);
-		std::vector<t_state *>		*_getNeighbours(t_state *current, t_state *last);
-		void						_init(void);
+		int						_findTile(int id);
+		int						_findTile(uint8_t *board, int tile);
+		void					_genSol(void);
+		int						_getBlankPos(t_state * current);
+		bool					_board_cmp(t_state *s1, t_state * s2);
+		t_state*				_swapTile(int pos, int npos, t_state *state, t_state *last);
+		std::vector<t_state *>	*_getNeighbours(t_state *current, t_state *last);
+		void					_init(void);
 
 		template <class I>
-		bool				_cmpBoard(t_state *s, I it);
+		bool					_cmpBoard(t_state *s, I it);
 		template <class T>
-		auto				_findState(const T &set, t_state *s);
+		auto					_findState(const T &set, t_state *s);
 
 		void					_printState(t_state *s);
 		void					_printPred(t_state *finalState);
 		std::string				_getHash(t_state *state);
 		void					_insertInClose(t_state *state, const std::string &hash);
 
-		t_state	*_initialState;
-		uint8_t	*_solution;
-		int		_size;
-		int		_totSize;
-		std::string	_srcFile;
-		int		_whichHeuristics = HAMMING;
+		int						_inversions(uint8_t *board);
+		bool					_isSolvable(t_state *initialState, uint8_t *goalState);
+
+
+		t_state					*_initialState;
+		uint8_t					*_solution;
+		int						_size;
+		int						_totSize;
+		std::string				_srcFile;
+		int						_whichHeuristics = HAMMING;
 		
 		std::set<t_state*, t_state_cmp>					_openSet;
 		std::unordered_map<std::string, t_state *>		_closeSetHash;
