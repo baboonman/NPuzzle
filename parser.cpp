@@ -43,6 +43,7 @@ uint8_t		*parse(std::string filename, size_t *size)
 			}
 		}
 	}
+	file.close();
 	std::cout << "Input: " << std::endl;
 	for (size_t y = 0; y < *size; ++y)
 	{

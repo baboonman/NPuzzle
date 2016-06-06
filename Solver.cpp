@@ -269,6 +269,24 @@ void					Solver::_printPred(t_state *finalState)
 	std::cout << "Total move: " << finalState->g << std::endl;
 }
 
+std::string				Solver::_getHash(t_state *state)
+{
+	std::string	res;
+	for (int i = 0; i < this->_totSize; i++)
+	{
+		res += state->board[i];
+		res += " ";
+	}
+	return res;
+}
+
+void					Solver::_insertInClose(t_state *state, const std::string &hash)
+{
+	std::pair<const std::string, t_state *>	pair(hash, state);
+
+	this->_closeSetHash.insert(pair);
+}
+
 void					Solver::solver()
 {
 	bool						success = false;
@@ -277,6 +295,8 @@ void					Solver::solver()
 	t_state *					last;
 	t_state	*					current;
 	int							i = 0;
+	std::string					neighbourHash;
+	std::string					currentHash;
 	
 	this->_openSet.insert(this->_initialState);
 	last = this->_initialState;
@@ -286,7 +306,9 @@ void					Solver::solver()
 		i++;
 		auto it = this->_openSet.begin();
 		current = *it;
+		currentHash = this->_getHash(current);
 		this->_openSet.erase(it);
+		this->_openSetHash.erase(currentHash);
 	//	std::cout << "current: " << current->f << std::endl;
 
 		if (!this->hamming(current->board))
@@ -296,47 +318,38 @@ void					Solver::solver()
 		}
 		else
 		{
-			this->_closeSet.push_back(current);
+			this->_insertInClose(current, this->_getHash(current));
 
 			neighbours = this->_getNeighbours(current, last);
 			for (auto n : *neighbours)
 			{
-				auto openIt = this->_findState<std::set<t_state*, t_state_cmp>>(this->_openSet, n);
-				auto closeIt = this->_findState<std::vector<t_state*>>(this->_closeSet, n);
-				bool isInOpen = (openIt != this->_openSet.end());
-				bool isInClose = (closeIt != this->_closeSet.end());
+				neighbourHash = this->_getHash(n);
+				auto openHashIt = this->_openSetHash.find(neighbourHash);
+				auto closeIt = this->_closeSetHash.find(neighbourHash);
+				bool isInOpen = (openHashIt != this->_openSetHash.end());
+				bool isInClose = (closeIt != this->_closeSetHash.end());
 
 				if (!isInOpen && !isInClose)
 				{
-					this->_openSet.insert(n);
+					auto openIt = this->_openSet.insert(n).first;
+					this->_openSetHash[neighbourHash] = openIt;
 				}
 				else if (isInOpen && isInClose)
-				{
 					std::cout << "FAIL" << std::endl;
-				}
 				else
 				{
-					/*
-					if (isInOpen)
+					if (isInOpen && n->f < (*(openHashIt->second))->f)
 					{
-						std::cout << "n->f: " << n->f << " openit->f: " << (*openIt)->f << " n->h:" << n->h << " openit->h: " << (*openIt)->h << std::endl;
-					}
-					if (isInClose)
-					{
-						std::cout << "n->f: " << n->f << " closeit->f: " << (*closeIt)->f << " n->h:" << n->h << " closeit->h: " << (*closeIt)->h << std::endl;
-					}
-					*/
-					if (isInOpen && n->f < (*openIt)->f)
-					{
-					//	std::cout << "Change in open" << std::endl;
+						auto openIt	= openHashIt->second;
 						this->_openSet.erase(openIt);
-						this->_openSet.insert(n);
+						openIt = this->_openSet.insert(n).first;
+						this->_openSetHash[neighbourHash] = openIt;
 					}
-					else if (isInClose && n->f < (*closeIt)->f)
+					else if (isInClose && n->f < closeIt->second->f)
 					{
-					//	std::cout << "Change in close" << std::endl;
-						this->_closeSet.erase(closeIt);
-						this->_openSet.insert(n);
+						this->_closeSetHash.erase(closeIt);
+						auto openIt = this->_openSet.insert(n).first;
+						this->_openSetHash[neighbourHash] = openIt;
 					}
 				}
 			}

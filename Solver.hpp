@@ -5,6 +5,7 @@
 # include <iostream>
 # include <vector>
 # include <set>
+# include <unordered_map>
 # include "parser.hpp"
 # define NORTH 0
 # define WEST 1
@@ -21,6 +22,8 @@ typedef struct			s_state_cmp
 		return lhs->f <= rhs->f; 
 	}
 }						t_state_cmp;
+
+typedef std::set<t_state *, t_state_cmp>::iterator	t_openSetIt;
 
 class	Solver
 {
@@ -49,6 +52,8 @@ class	Solver
 
 		void					_printState(t_state *s);
 		void					_printPred(t_state *finalState);
+		std::string				_getHash(t_state *state);
+		void					_insertInClose(t_state *state, const std::string &hash);
 
 		t_state	*_initialState;
 		uint8_t	*_solution;
@@ -57,8 +62,9 @@ class	Solver
 		std::string	_srcFile;
 		int		_whichHeuristics = HAMMING;
 		
-		std::set<t_state*, t_state_cmp>		_openSet;
-		std::vector<t_state *>				_closeSet;
+		std::set<t_state*, t_state_cmp>					_openSet;
+		std::unordered_map<std::string, t_state *>		_closeSetHash;
+		std::unordered_map<std::string, t_openSetIt>	_openSetHash;
 };
 
 template<class I>
