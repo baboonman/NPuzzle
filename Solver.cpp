@@ -307,9 +307,7 @@ std::string				Solver::_getHash(t_state *state)
 
 void					Solver::_insertInClose(t_state *state, const std::string &hash)
 {
-	std::pair<const std::string, t_state *>	pair(hash, state);
-
-	this->_closeSetHash.insert(pair);
+	this->_closeSetHash[hash] = state;
 }
 
 void					Solver::_deleteState(t_state *state)
@@ -392,7 +390,6 @@ void					Solver::solver()
 			}
 			delete neighbours;
 		}
-		//delete current;
 		last = current;
 	}
 	if (!success)
