@@ -137,7 +137,7 @@ int		Solver::getHeuristics(uint8_t *state)
 	}
 	if (this->_whichHeuristics == MISPLACEDTILES)
 	{
-		return this->hamming(state);
+		return this->heuristic3(state);
 	}
 	return (-1);
 }
@@ -193,6 +193,23 @@ int		Solver::manhattan(uint8_t *board)
 		res += std::abs(x - xi) + std::abs(y - yi);
 	}
 	return (res);
+}
+
+int		Solver::heuristic3(uint8_t *board)
+{
+	int	row	= 0;
+	int	col	= 0;
+	int	pos;
+
+	for (int i = 0 ; i < this->_totSize ; i++)
+	{
+		pos = this->_findTile(board[i]);
+		if ( (pos / this->_size) != (i / this->_size) )
+			row++;
+		if ( (pos % this->_size) != (i % this->_size) )
+			col++;
+	}
+	return col + row;
 }
 
 int								Solver::_getBlankPos(t_state *current)
