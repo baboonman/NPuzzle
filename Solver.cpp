@@ -1,7 +1,7 @@
 #include "Solver.hpp"
 
-Solver::Solver(int size)
-	: _size(size), _totSize(size * size)
+Solver::Solver(int size, int heuristics)
+	: _whichHeuristics(heuristics), _size(size), _totSize(size * size)
 {
 	this->_init();
 }
@@ -12,7 +12,8 @@ void	Solver::_init(void)
 	this->_genSol();
 }
 
-Solver::Solver(std::string filename)
+Solver::Solver(std::string filename, int heuristics)
+	: _whichHeuristics(heuristics)
 {
 	size_t	size = 0;
 
@@ -31,12 +32,8 @@ Solver::Solver(std::string filename)
 		std::cerr << "Unsolvable puzzle man" << std::endl;
 		throw new std::exception;
 	}
-	if (this->_whichHeuristics == HAMMING)
-	{
-//		this->_initialState->h = this->hamming(this->_initialState->board);
-		this->_initialState->h = this->manhattan(this->_initialState->board);
-		this->_initialState->f = this->_initialState->h;
-	}
+	this->_initialState->h = this->getHeuristics(this->_initialState->board);
+	this->_initialState->f = this->_initialState->h;
 }
 
 Solver::~Solver()
@@ -126,6 +123,19 @@ void	Solver::_genSol(void)
 		}
 		std::cout << std::endl;
 	}
+}
+
+int		Solver::getHeuristics(uint8_t *state)
+{
+	if (this->_whichHeuristics == HAMMING)
+	{
+		return this->hamming(state);
+	}
+	if (this->_whichHeuristics == MANHATTAN)
+	{
+		return this->manhattan(state);
+	}
+	return (-1);
 }
 
 int		Solver::hamming(uint8_t *board)
@@ -220,8 +230,7 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	}
 
 	s->g = state->g + 1;
-//	s->h = this->hamming(s->board);
-	s->h = this->manhattan(s->board);
+	s->h = this->getHeuristics(s->board);
 	s->f = s->g + s->h;
 	s->predecessor = state;
 

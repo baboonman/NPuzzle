@@ -28,12 +28,12 @@ typedef std::set<t_state *, t_state_cmp>::iterator	t_openSetIt;
 class	Solver
 {
 	public:
-		Solver(int size);
-		Solver(std::string filename);
+		Solver(int size, int heuristics);
+		Solver(std::string filename, int heuristics);
 		virtual ~Solver();
 		int						hamming(uint8_t *state);
 		int						manhattan(uint8_t *state);
-
+		int						getHeuristics(uint8_t *state);
 		void					solver();
 
 	private:
@@ -59,6 +59,8 @@ class	Solver
 		int						_inversions(uint8_t *board);
 		bool					_isSolvable(t_state *initialState, uint8_t *goalState);
 		void					_deleteState(t_state *state);
+		int						*(_heuristicsFn)(uint8_t *);
+		int						_whichHeuristics;
 
 
 		t_state					*_initialState;
@@ -66,7 +68,6 @@ class	Solver
 		int						_size;
 		int						_totSize;
 		std::string				_srcFile;
-		int						_whichHeuristics = HAMMING;
 		int						_totalOpenedState = 0;
 		int						_totalStateEver = 0;
 		
