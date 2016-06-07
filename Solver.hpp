@@ -14,6 +14,7 @@
 
 # define HAMMING 0
 # define MANHATTAN 1
+# define MISPLACEDTILES 2
 
 typedef struct			s_state_cmp
 {

@@ -7,6 +7,8 @@ static int		getHeuristicsChoice(const std::string arg)
 		return MANHATTAN;
 	if (arg == "hamming")
 		return HAMMING;
+	if (arg == "misplacedTiles")
+		return MISPLACEDTILES;
 	return (-1);
 	std::cout << "No heuristics function" << std::endl;
 }
@@ -18,7 +20,7 @@ int		main(int argc, char **argv)
 
 	if (argc < 3 || (heuristics = getHeuristicsChoice(argv[2])) < 0)
 	{
-		std::cerr << "./npuzzle filename [manhattan|hamming]" << std::endl;
+		std::cerr << "./npuzzle filename [manhattan|hamming|misplacedTiles]" << std::endl;
 		return 0;
 	}
 	try {

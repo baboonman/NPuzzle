@@ -135,6 +135,10 @@ int		Solver::getHeuristics(uint8_t *state)
 	{
 		return this->manhattan(state);
 	}
+	if (this->_whichHeuristics == MISPLACEDTILES)
+	{
+		return this->hamming(state);
+	}
 	return (-1);
 }
 
