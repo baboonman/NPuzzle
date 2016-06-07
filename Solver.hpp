@@ -33,6 +33,7 @@ class	Solver
 		virtual ~Solver();
 		int						hamming(uint8_t *state);
 		int						manhattan(uint8_t *state);
+		int						heuristic3(uint8_t *state);
 
 		void					solver();
 
