@@ -42,7 +42,16 @@ Solver::Solver(std::string filename)
 Solver::~Solver()
 {
 	delete this->_solution;
-	delete this->_initialState;
+	//delete this->_initialState->board;
+	//delete this->_initialState;
+	for (auto s : this->_openSet)
+	{
+		this->_deleteState(s);
+	}
+	for (auto s : this->_closeSetHash)
+	{
+		this->_deleteState(s.second);
+	}
 }
 
 void	Solver::_genSol(void)
@@ -206,6 +215,7 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	s->board[npos] = state->board[pos];
 
 	if (!this->_board_cmp(s, last)) {
+		this->_deleteState(s);
 		return NULL;
 	}
 
@@ -302,6 +312,12 @@ void					Solver::_insertInClose(t_state *state, const std::string &hash)
 	this->_closeSetHash.insert(pair);
 }
 
+void					Solver::_deleteState(t_state *state)
+{
+	delete state->board;
+	delete state;
+}
+
 void					Solver::solver()
 {
 	bool						success = false;
@@ -333,7 +349,7 @@ void					Solver::solver()
 		}
 		else
 		{
-			this->_insertInClose(current, this->_getHash(current));
+			this->_insertInClose(current, currentHash);
 
 			neighbours = this->_getNeighbours(current, last);
 			for (auto n : *neighbours)
@@ -356,15 +372,21 @@ void					Solver::solver()
 					if (isInOpen && n->f < (*(openHashIt->second))->f)
 					{
 						auto openIt	= openHashIt->second;
+						this->_deleteState(*openIt);
 						this->_openSet.erase(openIt);
 						openIt = this->_openSet.insert(n).first;
 						this->_openSetHash[neighbourHash] = openIt;
 					}
 					else if (isInClose && n->f < closeIt->second->f)
 					{
+						this->_deleteState(closeIt->second);
 						this->_closeSetHash.erase(closeIt);
 						auto openIt = this->_openSet.insert(n).first;
 						this->_openSetHash[neighbourHash] = openIt;
+					}
+					else
+					{
+						this->_deleteState(n);
 					}
 				}
 			}
@@ -376,7 +398,10 @@ void					Solver::solver()
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
 	else
+	{
 		this->_printPred(current);
+		this->_deleteState(current);
+	}
 	std::cout << "nb loop turn: " << i << std::endl;
 }
 

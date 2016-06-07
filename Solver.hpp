@@ -58,6 +58,7 @@ class	Solver
 
 		int						_inversions(uint8_t *board);
 		bool					_isSolvable(t_state *initialState, uint8_t *goalState);
+		void					_deleteState(t_state *state);
 
 
 		t_state					*_initialState;
@@ -66,6 +67,8 @@ class	Solver
 		int						_totSize;
 		std::string				_srcFile;
 		int						_whichHeuristics = HAMMING;
+		int						_totalOpenedState = 0;
+		int						_totalStateEver = 0;
 		
 		std::set<t_state*, t_state_cmp>					_openSet;
 		std::unordered_map<std::string, t_state *>		_closeSetHash;
