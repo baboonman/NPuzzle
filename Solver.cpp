@@ -3,6 +3,9 @@
 Solver::Solver(int size, int heuristics)
 	: _whichHeuristics(heuristics), _size(size), _totSize(size * size)
 {
+	if (size < 3)
+		throw new std::exception();
+	this->_generator();
 	this->_init();
 }
 
@@ -10,6 +13,36 @@ void	Solver::_init(void)
 {
 	this->_solution = new uint8_t[this->_totSize]();
 	this->_genSol();
+	if (!this->_isSolvable(this->_initialState, this->_solution))
+	{
+		std::cerr << "Unsolvable puzzle man" << std::endl;
+		throw new std::exception;
+	}
+	this->_initialState->h = this->getHeuristics(this->_initialState->board);
+	this->_initialState->f = this->_initialState->h;
+	std::cout << "Puzzle to solve: " << std::endl;
+	this->_printState(this->_initialState);
+	std::cout << std::endl << "Goal: " << std::endl;
+	this->_printBoard(this->_solution);
+	std::cout << std::endl;
+
+}
+
+void	Solver::_generator(void)
+{
+	std::vector<int>	val(this->_totSize);
+	int					output;
+
+	srand(time(0));
+	this->_initialState = new t_state();
+	this->_initialState->board = new uint8_t[this->_totSize]();
+	std::iota(val.begin(), val.end(), 0);
+	for (int i = 0; i < this->_totSize; ++i)
+	{
+		output = rand() % val.size();
+		this->_initialState->board[i] = val[output];
+		val.erase(val.begin() + output);
+	}
 }
 
 Solver::Solver(std::string filename, int heuristics)
@@ -25,22 +58,12 @@ Solver::Solver(std::string filename, int heuristics)
 	}
 	this->_size = size;
 	this->_totSize = size * size;
-	std::cout << "size: " << size << " totsize: " << this->_totSize << std::endl;
 	this->_init();
-	if (!this->_isSolvable(this->_initialState, this->_solution))
-	{
-		std::cerr << "Unsolvable puzzle man" << std::endl;
-		throw new std::exception;
-	}
-	this->_initialState->h = this->getHeuristics(this->_initialState->board);
-	this->_initialState->f = this->_initialState->h;
 }
 
 Solver::~Solver()
 {
 	delete this->_solution;
-	//delete this->_initialState->board;
-	//delete this->_initialState;
 	for (auto s : this->_openSet)
 	{
 		this->_deleteState(s);
@@ -114,14 +137,6 @@ void	Solver::_genSol(void)
 		{
 			notFinish = false;
 		}
-	}
-	for (int y = 0; y < this->_size; ++y)
-	{
-		for (int x = 0; x < this->_size; ++x)
-		{
-			std::cout << static_cast<int>(this->_solution[x + y * this->_size]) << " ";
-		}
-		std::cout << std::endl;
 	}
 }
 
@@ -299,16 +314,36 @@ std::vector<t_state *>			*Solver::_getNeighbours(t_state *current, t_state *last
 	return neighbours;
 }
 
-void					Solver::_printState(t_state *s)
+void					Solver::_printBoard(uint8_t *board)
 {
-	std::cout << "cost: " << s->g << " heuristic: " << s->h << " f: " << s->f << std::endl;
 	for (int i = 0 ; i < this->_totSize ; i++)
 	{
 		if (i != 0 && i % this->_size == 0)
 			std::cout << std::endl;
-		std::cout << static_cast<int>(s->board[i]) << " ";
+		std::cout << std::setw(5) << static_cast<int>(board[i]) << " ";
 	}
 	std::cout << std::endl;
+}
+
+void					Solver::_printState(t_state *s)
+{
+	std::cout << "Cost: " << s->g << ", Heuristic: " << s->h << std::endl;
+	this->_printBoard(s->board);
+}
+
+void				Solver::_printInfo(t_state *s)
+{
+	char				resp;
+
+	std::cout << "Display the solution? (y/n): ";
+	std::cin >> resp;
+	if (resp == 'y')
+	{
+		this->_printPred(s);
+	}
+	std::cout << "Total move: " << s->g << std::endl;
+	std::cout << "Total number of states ever selected in the \"opened\" set: " << this->_totalOpenedStateEver << std::endl;
+	std::cout << "Maximum number of states ever represented in memory at the same time during the search: " << this->_maxStateInMemory << std::endl;
 }
 
 void					Solver::_printPred(t_state *finalState)
@@ -321,7 +356,6 @@ void					Solver::_printPred(t_state *finalState)
 		this->_printState(c);
 		c = c->predecessor;
 	}
-	std::cout << "Total move: " << finalState->g << std::endl;
 }
 
 std::string				Solver::_getHash(t_state *state)
@@ -353,7 +387,6 @@ void					Solver::solver()
 	std::vector<t_state *>		*neighbours;
 	t_state *					last;
 	t_state	*					current;
-	int							i = 0;
 	std::string					neighbourHash;
 	std::string					currentHash;
 	
@@ -362,12 +395,12 @@ void					Solver::solver()
 
 	while (!this->_openSet.empty() && !success)
 	{
-		i++;
 		auto it = this->_openSet.begin();
 		current = *it;
 		currentHash = this->_getHash(current);
 		this->_openSet.erase(it);
 		this->_openSetHash.erase(currentHash);
+		this->_totalOpenedStateEver++;
 	//	std::cout << "current: " << current->f << std::endl;
 
 		if (!this->hamming(current->board))
@@ -393,8 +426,6 @@ void					Solver::solver()
 					auto openIt = this->_openSet.insert(n).first;
 					this->_openSetHash[neighbourHash] = openIt;
 				}
-				else if (isInOpen && isInClose)
-					std::cout << "FAIL" << std::endl;
 				else
 				{
 					if (isInOpen && n->f < (*(openHashIt->second))->f)
@@ -420,16 +451,16 @@ void					Solver::solver()
 			}
 			delete neighbours;
 		}
+		this->_maxStateInMemory = std::max<int>(this->_openSet.size() + this->_closeSetHash.size(), this->_maxStateInMemory);
 		last = current;
 	}
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
 	else
 	{
-		this->_printPred(current);
+		this->_printInfo(current);
 		this->_deleteState(current);
 	}
-	std::cout << "nb loop turn: " << i << std::endl;
 }
 
 int			Solver::_inversions(uint8_t *board)

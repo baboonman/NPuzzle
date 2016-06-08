@@ -1,11 +1,15 @@
 #ifndef SOLVER_HPP
 # define SOLVER_HPP
 
+# include <numeric>
 # include <cstring>
 # include <iostream>
 # include <vector>
 # include <set>
 # include <unordered_map>
+# include <random>
+# include <algorithm>
+# include <iomanip>
 # include "parser.hpp"
 # define NORTH 0
 # define WEST 1
@@ -39,6 +43,7 @@ class	Solver
 		void					solver();
 
 	private:
+		void					_generator(void);
 		int						_findTile(int id);
 		int						_findTile(uint8_t *board, int tile);
 		void					_genSol(void);
@@ -61,17 +66,18 @@ class	Solver
 		int						_inversions(uint8_t *board);
 		bool					_isSolvable(t_state *initialState, uint8_t *goalState);
 		void					_deleteState(t_state *state);
+		void					_printBoard(uint8_t *board);
+		void					_printInfo(t_state *s);
+
 		int						*(_heuristicsFn)(uint8_t *);
 		int						_whichHeuristics;
-
-
 		t_state					*_initialState;
 		uint8_t					*_solution;
 		int						_size;
 		int						_totSize;
 		std::string				_srcFile;
-		int						_totalOpenedState = 0;
-		int						_totalStateEver = 0;
+		int						_maxStateInMemory = 0;
+		int						_totalOpenedStateEver = 0;
 		
 		std::set<t_state*, t_state_cmp>					_openSet;
 		std::unordered_map<std::string, t_state *>		_closeSetHash;

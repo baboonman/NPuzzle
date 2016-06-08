@@ -1,5 +1,7 @@
 #include "Solver.hpp"
 #include <iostream>
+# define FILENAME 1
+# define SIZE 2
 
 static int		getHeuristicsChoice(const std::string arg)
 {
@@ -13,19 +15,35 @@ static int		getHeuristicsChoice(const std::string arg)
 	std::cout << "No heuristics function" << std::endl;
 }
 
+static int		getType(const std::string arg)
+{
+	if (arg == "-f")
+		return FILENAME;
+	if (arg == "-s")
+		return SIZE;
+	return (0);
+}
+
 int		main(int argc, char **argv)
 {
 	Solver	*solver;
 	int		heuristics;
+	int		type;
 
-	if (argc < 3 || (heuristics = getHeuristicsChoice(argv[2])) < 0)
+	if (argc < 4
+			|| !(type = getType(argv[1]))
+			|| (heuristics = getHeuristicsChoice(argv[3])) < 0)
 	{
-		std::cerr << "./npuzzle filename [manhattan|hamming|misplacedTiles]" << std::endl;
+		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles]" << std::endl;
 		return 0;
 	}
 	try {
-		solver = new Solver(argv[1], heuristics);
+		if (type == FILENAME)
+			solver = new Solver(argv[2], heuristics);
+		if (type == SIZE)
+			solver = new Solver(std::atoi(argv[2]), heuristics);
 	} catch (std::exception *e) {
+		std::cout << e->what() << std::endl;
 		return (1);
 	}
 	solver->solver();

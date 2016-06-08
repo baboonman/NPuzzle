@@ -44,15 +44,5 @@ uint8_t		*parse(std::string filename, size_t *size)
 		}
 	}
 	file.close();
-	std::cout << "Input: " << std::endl;
-	for (size_t y = 0; y < *size; ++y)
-	{
-		for (size_t x = 0; x < *size; ++x)
-		{
-			std::cout << static_cast<int>(res[x + y * *size]) << " ";
-		}
-		std::cout << std::endl;
-	}
-	std::cout << "-------" << std::endl;
 	return (res);
 }
