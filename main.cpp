@@ -1,4 +1,5 @@
 #include "Solver.hpp"
+#include "SolverException.hpp"
 #include <iostream>
 # define FILENAME 1
 # define SIZE 2
@@ -42,7 +43,7 @@ int		main(int argc, char **argv)
 			solver = new Solver(argv[2], heuristics);
 		if (type == SIZE)
 			solver = new Solver(std::atoi(argv[2]), heuristics);
-	} catch (std::exception *e) {
+	} catch (SolverException *e) {
 		std::cout << e->what() << std::endl;
 		return (1);
 	}

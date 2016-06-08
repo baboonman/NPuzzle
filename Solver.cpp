@@ -4,7 +4,7 @@ Solver::Solver(int size, int heuristics)
 	: _whichHeuristics(heuristics), _size(size), _totSize(size * size)
 {
 	if (size < 3)
-		throw new std::exception();
+		throw new SolverException("Minimum grid size is 3");
 	this->_generator();
 	this->_init();
 }
@@ -15,8 +15,7 @@ void	Solver::_init(void)
 	this->_genSol();
 	if (!this->_isSolvable(this->_initialState, this->_solution))
 	{
-		std::cerr << "Unsolvable puzzle man" << std::endl;
-		throw new std::exception;
+		throw new SolverException("This puzzle has no solution");
 	}
 	this->_initialState->h = this->getHeuristics(this->_initialState->board);
 	this->_initialState->f = this->_initialState->h;
@@ -52,10 +51,7 @@ Solver::Solver(std::string filename, int heuristics)
 
 	this->_initialState = new t_state();
 	if (!(this->_initialState->board = parse(filename, &size)))
-	{
-		std::cerr << "Unable to parse file" << std::endl;
-		throw new std::exception;
-	}
+		throw new SolverException("Unable to parse the file (" + filename + ")");
 	this->_size = size;
 	this->_totSize = size * size;
 	this->_init();
@@ -363,7 +359,7 @@ std::string				Solver::_getHash(t_state *state)
 	std::string	res;
 	for (int i = 0; i < this->_totSize; i++)
 	{
-		res += state->board[i];
+		res += std::to_string(state->board[i]);
 		res += " ";
 	}
 	return res;

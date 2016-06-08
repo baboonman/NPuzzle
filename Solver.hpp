@@ -10,6 +10,7 @@
 # include <random>
 # include <algorithm>
 # include <iomanip>
+# include "SolverException.hpp"
 # include "parser.hpp"
 # define NORTH 0
 # define WEST 1

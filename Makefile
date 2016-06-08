@@ -4,7 +4,8 @@ NAME=npuzzle
 
 SRC= main.cpp \
 	 Solver.cpp \
-	 parser.cpp
+	 parser.cpp \
+	 SolverException.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
