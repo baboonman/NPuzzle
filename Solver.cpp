@@ -218,11 +218,11 @@ int		Solver::lnManhattan(uint8_t *board)
 	int		xiDest, yiDest, xjDest, yjDest;
 	int		iDest, jDest;
 	int		cost = 0;
-	std::vector<int> processed;
+	std::vector<bool> processed(_totSize, false);
 
 	for (int i = 0; i < this->_totSize; ++i)
 	{
-		if (std::find(processed.begin(), processed.end(), i) != processed.end())
+		if (processed[i])
 			continue ;
 		xi = i % this->_size;
 		yi = i / this->_size;
@@ -242,7 +242,7 @@ int		Solver::lnManhattan(uint8_t *board)
 					&& yi > yj && yiDest < yjDest)
 			{
 				cost += 2;
-				processed.push_back(j);
+				processed[j] = true;;
 			}
 		}
 	}
