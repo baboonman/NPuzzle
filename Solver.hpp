@@ -10,6 +10,7 @@
 # include <random>
 # include <algorithm>
 # include <iomanip>
+# include <sys/time.h>
 # include "SolverException.hpp"
 # include "parser.hpp"
 # define NORTH 0
@@ -20,6 +21,7 @@
 # define HAMMING 0
 # define MANHATTAN 1
 # define MISPLACEDTILES 2
+# define LNMANHATTAN 3
 
 typedef struct			s_state_cmp
 {
@@ -39,8 +41,9 @@ class	Solver
 		virtual ~Solver();
 		int						hamming(uint8_t *state);
 		int						manhattan(uint8_t *state);
-		int						getHeuristics(uint8_t *state);
+		int						lnManhattan(uint8_t *board);
 		int						heuristic3(uint8_t *state);
+		int						getHeuristics(uint8_t *state);
 		void					solver();
 
 	private:
@@ -70,6 +73,7 @@ class	Solver
 		void					_printBoard(uint8_t *board);
 		void					_printInfo(t_state *s);
 
+		int						_time;
 		int						*(_heuristicsFn)(uint8_t *);
 		int						_whichHeuristics;
 		t_state					*_initialState;

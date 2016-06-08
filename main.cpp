@@ -12,8 +12,10 @@ static int		getHeuristicsChoice(const std::string arg)
 		return HAMMING;
 	if (arg == "misplacedTiles")
 		return MISPLACEDTILES;
+	if (arg == "lnManhattan")
+		return LNMANHATTAN;
+	std::cerr << "Heuristics " << arg << " does not exist" << std::endl;
 	return (-1);
-	std::cout << "No heuristics function" << std::endl;
 }
 
 static int		getType(const std::string arg)
@@ -35,7 +37,7 @@ int		main(int argc, char **argv)
 			|| !(type = getType(argv[1]))
 			|| (heuristics = getHeuristicsChoice(argv[3])) < 0)
 	{
-		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles]" << std::endl;
+		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan]" << std::endl;
 		return 0;
 	}
 	try {
@@ -44,7 +46,7 @@ int		main(int argc, char **argv)
 		if (type == SIZE)
 			solver = new Solver(std::atoi(argv[2]), heuristics);
 	} catch (SolverException *e) {
-		std::cout << e->what() << std::endl;
+		std::cerr << e->what() << std::endl;
 		return (1);
 	}
 	solver->solver();

@@ -11,6 +11,8 @@ Solver::Solver(int size, int heuristics)
 
 void	Solver::_init(void)
 {
+	this->_openSetHash.reserve(5000000);
+	this->_closeSetHash.reserve(5000000);
 	this->_solution = new uint8_t[this->_totSize]();
 	this->_genSol();
 	if (!this->_isSolvable(this->_initialState, this->_solution))
@@ -150,19 +152,11 @@ int		Solver::getHeuristics(uint8_t *state)
 	{
 		return this->heuristic3(state);
 	}
-	return (-1);
-}
-
-int		Solver::hamming(uint8_t *board)
-{
-	int		res = 0;
-
-	for (int i = 0; i < this->_totSize; ++i)
+	if (this->_whichHeuristics == LNMANHATTAN)
 	{
-		if (board[i] ^ this->_solution[i])
-			res++;
+		return this->lnManhattan(state);
 	}
-	return (res);
+	return (-1);
 }
 
 int		Solver::_findTile(uint8_t *board, int tile)
@@ -185,6 +179,18 @@ int		Solver::_findTile(int id)
 	return (-1);
 }
 
+int		Solver::hamming(uint8_t *board)
+{
+	int		res = 0;
+
+	for (int i = 0; i < this->_totSize; ++i)
+	{
+		if (board[i] ^ this->_solution[i])
+			res++;
+	}
+	return (res);
+}
+
 int		Solver::manhattan(uint8_t *board)
 {
 	int		pos;
@@ -204,6 +210,43 @@ int		Solver::manhattan(uint8_t *board)
 		res += std::abs(x - xi) + std::abs(y - yi);
 	}
 	return (res);
+}
+
+int		Solver::lnManhattan(uint8_t *board)
+{
+	int		xi, yi, xj, yj;
+	int		xiDest, yiDest, xjDest, yjDest;
+	int		iDest, jDest;
+	int		cost = 0;
+	std::vector<int> processed;
+
+	for (int i = 0; i < this->_totSize; ++i)
+	{
+		if (std::find(processed.begin(), processed.end(), i) != processed.end())
+			continue ;
+		xi = i % this->_size;
+		yi = i / this->_size;
+		iDest = this->_findTile(board[i]);
+		xiDest = iDest % this->_size;
+		yiDest = iDest / this->_size;
+		for (int j = 0; j < this->_totSize; ++j)
+		{
+			if (j == i)
+				continue ;
+			jDest = this->_findTile(board[j]);
+			xjDest = jDest % this->_size;
+			yjDest = jDest / this->_size;
+			xj = j % this->_size;
+			yj = j / this->_size;
+			if (xj == xi && xjDest == xiDest && xj == xjDest
+					&& yi > yj && yiDest < yjDest)
+			{
+				cost += 2;
+				processed.push_back(j);
+			}
+		}
+	}
+	return (cost + this->manhattan(board));
 }
 
 int		Solver::heuristic3(uint8_t *board)
@@ -385,7 +428,10 @@ void					Solver::solver()
 	t_state	*					current;
 	std::string					neighbourHash;
 	std::string					currentHash;
+	struct timeval				tStart;
+	struct timeval				tEnd;
 	
+	gettimeofday(&tStart, NULL);
 	this->_openSet.insert(this->_initialState);
 	last = this->_initialState;
 
@@ -397,7 +443,6 @@ void					Solver::solver()
 		this->_openSet.erase(it);
 		this->_openSetHash.erase(currentHash);
 		this->_totalOpenedStateEver++;
-	//	std::cout << "current: " << current->f << std::endl;
 
 		if (!this->hamming(current->board))
 		{
@@ -450,6 +495,18 @@ void					Solver::solver()
 		this->_maxStateInMemory = std::max<int>(this->_openSet.size() + this->_closeSetHash.size(), this->_maxStateInMemory);
 		last = current;
 	}
+	gettimeofday(&tEnd, NULL);
+	int64_t totTime = ((static_cast<int64_t>(tEnd.tv_sec) * static_cast<int64_t>(1'000'000)
+								+ static_cast<int64_t>(tEnd.tv_usec))
+			- (static_cast<int64_t>(tStart.tv_sec) * static_cast<int64_t>(1'000'000)
+								+ static_cast<int64_t>(tStart.tv_usec))
+				);
+	std::cout << "Total algorithm execution time: " 
+		<< (totTime / 1'000'000'000) << "m "
+		<< (totTime / 1'000'000) % 60 << "s "
+		<< (totTime / 1'000) % 1'000 << "ms "
+		<< totTime % 1'000 << "us "
+		<< std::endl;
 	if (!success)
 		std::cout << "Puzzle not solved fucking biatch" << std::endl;
 	else
