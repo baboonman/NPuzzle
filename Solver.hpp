@@ -36,8 +36,8 @@ typedef std::set<t_state *, t_state_cmp>::iterator	t_openSetIt;
 class	Solver
 {
 	public:
-		Solver(int size, int heuristics);
-		Solver(std::string filename, int heuristics);
+		Solver(int size, int heuristics, bool greedy);
+		Solver(std::string filename, int heuristics, bool greedy);
 		virtual ~Solver();
 		int						hamming(int *state);
 		int						manhattan(int *state);
@@ -87,6 +87,7 @@ class	Solver
 		std::set<t_state*, t_state_cmp>					_openSet;
 		std::unordered_map<std::string, t_state *>		_closeSetHash;
 		std::unordered_map<std::string, t_openSetIt>	_openSetHash;
+		bool											_greedy;
 };
 
 template<class I>

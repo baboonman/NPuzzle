@@ -1,7 +1,7 @@
 #include "Solver.hpp"
 
-Solver::Solver(int size, int heuristics)
-	: _whichHeuristics(heuristics), _size(size), _totSize(size * size)
+Solver::Solver(int size, int heuristics, bool greedy)
+	: _whichHeuristics(heuristics), _size(size), _totSize(size * size), _greedy(greedy)
 {
 	if (size < 3)
 		throw new SolverException("Minimum grid size is 3");
@@ -46,8 +46,8 @@ void	Solver::_generator(void)
 	}
 }
 
-Solver::Solver(std::string filename, int heuristics)
-	: _whichHeuristics(heuristics)
+Solver::Solver(std::string filename, int heuristics, bool greedy)
+	: _whichHeuristics(heuristics), _greedy(greedy)
 {
 	size_t	size = 0;
 
@@ -306,7 +306,10 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 
 	s->g = state->g + 1;
 	s->h = this->getHeuristics(s->board);
-	s->f = s->g + s->h;
+	if (this->_greedy)
+		s->f = s->h;
+	else
+		s->f = s->g + s->h;
 	s->predecessor = state;
 
 	return s;

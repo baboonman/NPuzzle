@@ -27,24 +27,35 @@ static int		getType(const std::string arg)
 	return (0);
 }
 
-int		main(int argc, char **argv)
+static bool		getGreedy(int argc, const char **arg)
+{
+	if (argc < 5)
+		return false;
+	if (std::string(arg[4]) == "--greedy")
+		return true;
+	return false;
+}
+
+int		main(int argc, const char **argv)
 {
 	Solver	*solver;
 	int		heuristics;
+	bool	isGreedy;
 	int		type;
 
 	if (argc < 4
 			|| !(type = getType(argv[1]))
-			|| (heuristics = getHeuristicsChoice(argv[3])) < 0)
+			|| (heuristics = getHeuristicsChoice(argv[3])) < 0
+			|| (argc == 5 && !(isGreedy = getGreedy(argc, argv))))
 	{
-		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan]" << std::endl;
+		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan] [--greedy]" << std::endl;
 		return 0;
 	}
 	try {
 		if (type == FILENAME)
-			solver = new Solver(argv[2], heuristics);
+			solver = new Solver(argv[2], heuristics, isGreedy);
 		if (type == SIZE)
-			solver = new Solver(std::atoi(argv[2]), heuristics);
+			solver = new Solver(std::atoi(argv[2]), heuristics, isGreedy);
 	} catch (SolverException *e) {
 		std::cerr << e->what() << std::endl;
 		return (1);
