@@ -5,11 +5,11 @@
 #include "parser.hpp"
 
 
-uint8_t		*parse(std::string filename, size_t *size)
+int		*parse(std::string filename, size_t *size)
 {
 	std::ifstream	file;
 	std::string		line;
-	uint8_t			*res = nullptr;
+	int			*res = nullptr;
 	bool			hasSize = false;
 	size_t			curPos = 0;
 	int				tmp;
@@ -29,7 +29,7 @@ uint8_t		*parse(std::string filename, size_t *size)
 			if (*size < 3)
 				return (nullptr);
 			hasSize = true;
-			res = new uint8_t[*size * *size];
+			res = new int[*size * *size];
 		} else {
 			for (size_t i = 0; i < *size; ++i)
 			{

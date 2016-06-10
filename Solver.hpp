@@ -39,17 +39,17 @@ class	Solver
 		Solver(int size, int heuristics);
 		Solver(std::string filename, int heuristics);
 		virtual ~Solver();
-		int						hamming(uint8_t *state);
-		int						manhattan(uint8_t *state);
-		int						lnManhattan(uint8_t *board);
-		int						heuristic3(uint8_t *state);
-		int						getHeuristics(uint8_t *state);
+		int						hamming(int *state);
+		int						manhattan(int *state);
+		int						lnManhattan(int *board);
+		int						heuristic3(int *state);
+		int						getHeuristics(int *state);
 		void					solver();
 
 	private:
 		void					_generator(void);
 		int						_findTile(int id);
-		int						_findTile(uint8_t *board, int tile);
+		int						_findTile(int *board, int tile);
 		void					_genSol(void);
 		int						_getBlankPos(t_state * current);
 		bool					_board_cmp(t_state *s1, t_state * s2);
@@ -67,17 +67,17 @@ class	Solver
 		std::string				_getHash(t_state *state);
 		void					_insertInClose(t_state *state, const std::string &hash);
 
-		int						_inversions(uint8_t *board);
-		bool					_isSolvable(t_state *initialState, uint8_t *goalState);
+		int						_inversions(int *board);
+		bool					_isSolvable(t_state *initialState, int *goalState);
 		void					_deleteState(t_state *state);
-		void					_printBoard(uint8_t *board);
+		void					_printBoard(int *board);
 		void					_printInfo(t_state *s);
 
 		int						_time;
-		int						*(_heuristicsFn)(uint8_t *);
+		int						*(_heuristicsFn)(int *);
 		int						_whichHeuristics;
 		t_state					*_initialState;
-		uint8_t					*_solution;
+		int					*_solution;
 		int						_size;
 		int						_totSize;
 		std::string				_srcFile;

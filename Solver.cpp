@@ -13,7 +13,7 @@ void	Solver::_init(void)
 {
 	this->_openSetHash.reserve(5000000);
 	this->_closeSetHash.reserve(5000000);
-	this->_solution = new uint8_t[this->_totSize]();
+	this->_solution = new int[this->_totSize]();
 	this->_genSol();
 	if (!this->_isSolvable(this->_initialState, this->_solution))
 	{
@@ -36,7 +36,7 @@ void	Solver::_generator(void)
 
 	srand(time(0));
 	this->_initialState = new t_state();
-	this->_initialState->board = new uint8_t[this->_totSize]();
+	this->_initialState->board = new int[this->_totSize]();
 	std::iota(val.begin(), val.end(), 0);
 	for (int i = 0; i < this->_totSize; ++i)
 	{
@@ -138,7 +138,7 @@ void	Solver::_genSol(void)
 	}
 }
 
-int		Solver::getHeuristics(uint8_t *state)
+int		Solver::getHeuristics(int *state)
 {
 	if (this->_whichHeuristics == HAMMING)
 	{
@@ -159,7 +159,7 @@ int		Solver::getHeuristics(uint8_t *state)
 	return (-1);
 }
 
-int		Solver::_findTile(uint8_t *board, int tile)
+int		Solver::_findTile(int *board, int tile)
 {
 	for (int i = 0 ; i < this->_totSize ; i++)
 	{
@@ -179,7 +179,7 @@ int		Solver::_findTile(int id)
 	return (-1);
 }
 
-int		Solver::hamming(uint8_t *board)
+int		Solver::hamming(int *board)
 {
 	int		res = 0;
 
@@ -191,7 +191,7 @@ int		Solver::hamming(uint8_t *board)
 	return (res);
 }
 
-int		Solver::manhattan(uint8_t *board)
+int		Solver::manhattan(int *board)
 {
 	int		pos;
 	int		x;
@@ -212,7 +212,7 @@ int		Solver::manhattan(uint8_t *board)
 	return (res);
 }
 
-int		Solver::lnManhattan(uint8_t *board)
+int		Solver::lnManhattan(int *board)
 {
 	int		xi, yi, xj, yj;
 	int		xiDest, yiDest, xjDest, yjDest;
@@ -249,7 +249,7 @@ int		Solver::lnManhattan(uint8_t *board)
 	return (cost + this->manhattan(board));
 }
 
-int		Solver::heuristic3(uint8_t *board)
+int		Solver::heuristic3(int *board)
 {
 	int	row	= 0;
 	int	col	= 0;
@@ -293,8 +293,8 @@ t_state*						Solver::_swapTile(int pos, int npos, t_state *state, t_state *last
 	t_state						*s;
 
 	s = new t_state;
-	s->board = new uint8_t[this->_totSize];
-	std::memcpy(s->board, state->board, this->_totSize * sizeof(uint8_t));
+	s->board = new int[this->_totSize];
+	std::memcpy(s->board, state->board, this->_totSize * sizeof(int));
 
 	s->board[pos] = state->board[npos];
 	s->board[npos] = state->board[pos];
@@ -353,7 +353,7 @@ std::vector<t_state *>			*Solver::_getNeighbours(t_state *current, t_state *last
 	return neighbours;
 }
 
-void					Solver::_printBoard(uint8_t *board)
+void					Solver::_printBoard(int *board)
 {
 	for (int i = 0 ; i < this->_totSize ; i++)
 	{
@@ -516,7 +516,7 @@ void					Solver::solver()
 	}
 }
 
-int			Solver::_inversions(uint8_t *board)
+int			Solver::_inversions(int *board)
 {
 	int		inv = 0;
 
@@ -531,7 +531,7 @@ int			Solver::_inversions(uint8_t *board)
 	return inv;
 }
 
-bool		Solver::_isSolvable(t_state *initialState, uint8_t *goalState)
+bool		Solver::_isSolvable(t_state *initialState, int *goalState)
 {
 	int		startInv = this->_inversions(initialState->board);
 	int		goalInv = this->_inversions(goalState);
