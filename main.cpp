@@ -14,6 +14,8 @@ static int		getHeuristicsChoice(const std::string arg)
 		return MISPLACEDTILES;
 	if (arg == "lnManhattan")
 		return LNMANHATTAN;
+	if (arg == "crazyMan")
+		return CRAZYMAN;
 	std::cerr << "Heuristics " << arg << " does not exist" << std::endl;
 	return (-1);
 }
@@ -48,14 +50,17 @@ int		main(int argc, const char **argv)
 			|| (heuristics = getHeuristicsChoice(argv[3])) < 0
 			|| (argc == 5 && !(isGreedy = getGreedy(argc, argv))))
 	{
-		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan] [--greedy]" << std::endl;
+		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan|crazyMan] [--greedy]" << std::endl;
 		return 0;
 	}
 	try {
 		if (type == FILENAME)
 			solver = new Solver(argv[2], heuristics, isGreedy);
-		if (type == SIZE)
+		if (type == SIZE) {
+			if (strlen(argv[2]) > 2)
+				throw new SolverException("Maximum grid size is 99");
 			solver = new Solver(std::atoi(argv[2]), heuristics, isGreedy);
+		}
 	} catch (SolverException *e) {
 		std::cerr << e->what() << std::endl;
 		return (1);

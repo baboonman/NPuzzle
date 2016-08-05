@@ -13,15 +13,16 @@
 # include <sys/time.h>
 # include "SolverException.hpp"
 # include "parser.hpp"
-# define NORTH 0
-# define WEST 1
-# define SOUTH 2
-# define EAST 3
+# define NORTH			0
+# define WEST			1
+# define SOUTH			2
+# define EAST			3
 
-# define HAMMING 0
-# define MANHATTAN 1
-# define MISPLACEDTILES 2
-# define LNMANHATTAN 3
+# define HAMMING		0
+# define MANHATTAN		1
+# define MISPLACEDTILES	2
+# define LNMANHATTAN	3
+# define CRAZYMAN		4
 
 typedef struct			s_state_cmp
 {
@@ -38,15 +39,19 @@ class	Solver
 	public:
 		Solver(int size, int heuristics, bool greedy);
 		Solver(std::string filename, int heuristics, bool greedy);
-		virtual ~Solver();
+		virtual					~Solver();
 		int						hamming(int *state);
 		int						manhattan(int *state);
 		int						lnManhattan(int *board);
-		int						heuristic3(int *state);
+		int						misplacedTiles(int *state);
+		int						crazyMan(int *board);
 		int						getHeuristics(int *state);
 		void					solver();
 
 	private:
+		Solver();
+		Solver(const Solver & rhs);
+		Solver&					operator=(const Solver & rhs);
 		void					_generator(void);
 		int						_findTile(int id);
 		int						_findTile(int *board, int tile);

@@ -26,7 +26,7 @@ void	Solver::_init(void)
 	std::cout << std::endl << "Goal: " << std::endl;
 	this->_printBoard(this->_solution);
 	std::cout << std::endl;
-
+	srand(time(NULL));
 }
 
 void	Solver::_generator(void)
@@ -150,11 +150,15 @@ int		Solver::getHeuristics(int *state)
 	}
 	if (this->_whichHeuristics == MISPLACEDTILES)
 	{
-		return this->heuristic3(state);
+		return this->misplacedTiles(state);
 	}
 	if (this->_whichHeuristics == LNMANHATTAN)
 	{
 		return this->lnManhattan(state);
+	}
+	if (this->_whichHeuristics == CRAZYMAN)
+	{
+		return this->crazyMan(state);
 	}
 	return (-1);
 }
@@ -249,7 +253,7 @@ int		Solver::lnManhattan(int *board)
 	return (cost + this->manhattan(board));
 }
 
-int		Solver::heuristic3(int *board)
+int		Solver::misplacedTiles(int *board)
 {
 	int	row	= 0;
 	int	col	= 0;
@@ -264,6 +268,20 @@ int		Solver::heuristic3(int *board)
 			col++;
 	}
 	return col + row;
+}
+
+int		Solver::crazyMan(int *board)
+{
+	int		res = 0;
+
+	for (int i = 0; i < this->_totSize; ++i)
+	{
+		if (board[i] ^ this->_solution[i])
+			res++;
+	}
+	if (!res) 
+		res = rand() % 9 + 1;
+	return (res);
 }
 
 int								Solver::_getBlankPos(t_state *current)
