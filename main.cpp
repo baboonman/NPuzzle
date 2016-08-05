@@ -50,7 +50,7 @@ int		main(int argc, const char **argv)
 			|| (heuristics = getHeuristicsChoice(argv[3])) < 0
 			|| (argc == 5 && !(isGreedy = getGreedy(argc, argv))))
 	{
-		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan|crazyMan] [--greedy]" << std::endl;
+		std::cerr << "./npuzzle [-f filename|-s size] [manhattan|hamming|misplacedTiles|lnManhattan] [--greedy]" << std::endl;
 		return 0;
 	}
 	try {
